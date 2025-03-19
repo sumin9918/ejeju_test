@@ -46,7 +46,7 @@ def driver():
     driver = webdriver.Chrome(service=Service(), options=chrome_options)
     driver.execute_cdp_cmd(
         "Network.setExtraHTTPHeaders",
-        {"headers": {"Referer": "https://www.coupang.com/"}},
+        {"headers": {"Referer": "https://mall.ejeju.net/main/index.do"}},
     )
 
     # 대기시간 설정
