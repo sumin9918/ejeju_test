@@ -6,3 +6,6 @@ __pycache__/
 *.log
 
 login_info.py
+
+venv/
+.venv/
