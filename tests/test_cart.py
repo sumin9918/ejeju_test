@@ -74,13 +74,14 @@ class TestCart:
 
     # Test Data
     TEST_GOODS_NAME = "[이제주] 블루탐 오메기떡 60g(오메기,흑임자,귤,크림치즈)"
+    TEST_CHANGED_OPTION = "블루탐 오메기떡 24개입 / /"
 
     # constants
     GOODS_NAMES_STRONG_XPATH = "//p[@class='txt']/a/strong"
     QUANTITY_INPUT_XPATH = "//input[@title='수량']"
+    OPTION_SPAN_CLASS_NAME = "//span[@class='mgt5']"
 
     # 장바구니 상품 확인 테스트
-    @pytest.mark.skip(reason="아직 테스트 케이스 발동 안함")
     def test_confirm_cart_goods(self, driver: WebDriver):
         try:
             # 로그인
@@ -183,13 +184,43 @@ class TestCart:
             driver.save_screenshot("error_at_tc2.png")
             assert False
 
-    # 3. 모달 테스트
-    # - 로그인
-    # - 장바구니 페이지 이동
-    # - 수정 클릭 -> 모달 열기
-    # - 옵션 선택
-    # - 확인
-    # - 옵션 변경 확인
+    # 3. 상품 옵션 수정 테스트
+    def test_modify_option(self, driver: WebDriver):
+        try:
+            # 로그인
+            login(driver)
+
+            # 장바구니 페이지 이동
+            cart_page = CartPage(driver)
+            cart_page.open()
+
+            ws(driver, 10).until(
+                EC.url_contains("https://mall.ejeju.net/order/cart.do")
+            )
+
+            time.sleep(2)
+
+            # 모달 열기 (수정 클릭)
+            cart_modal = CartModal()
+            cart_modal.open()
+
+            # 옵션 선택
+            cart_modal.select_option()
+
+            # 확인
+            cart_modal.confirm()
+
+            # 옵션 변경 확인
+            option_element = driver.find_element(
+                By.CLASS_NAME, self.OPTION_SPAN_CLASS_NAME
+            )
+            option = option_element.get_attribute("textContent").strip()
+
+            assert self.TEST_GOODS_CHANGED_OPTION == option
+
+        except NoSuchElementException as e:
+            driver.save_screenshot("error_at_tc1.png")
+            assert False
 
     # 4. 삭제
     # - 로그인
