@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
@@ -17,7 +19,7 @@ class CartPage:
         self.driver.get(self.URL)
 
     # 장바구니 페이지 이동 (예정)
-    # - cart 페이지 이동 (방법 1, 2 중 택1)
+    # - cart 페이지 이동
     #   방법 1. mypage 이동 -> 장바구니 클릭
     #   방법 2. 사람 아이콘(?)에 hover -> 장바구구니 클릭
 
@@ -44,6 +46,12 @@ class CartPage:
         delete_button = delete_buttons[0]  # 삭제 버튼들 중 첫번째 요소를 선택
         delete_button.click()
 
+        time.sleep(2)
+
+        # alert 확인
+        alert = self.driver.switch_to.alert
+        alert.accept()
+
     # 추가 기능
     # - 선택삭제하기
     # - 전체삭제하기
@@ -60,10 +68,10 @@ class CartModal(CartPage):
     CONFIRM_BUTTON_XPATH = "button[text()='확인']"
     CLOSE_BUTTON_XPATH = "//button[text()='창닫기']"
 
-    # 모달 열림
+    # 장바구니 수정 모달 열기
     def open(self):
 
-        # test_wish에서 검사할 내용
+        # test_cart에서 검사할 내용
 
         # 현재 장바구니 페이지에 있는지 검사
         # assert "wish" in self.driver.current_url
@@ -75,12 +83,14 @@ class CartModal(CartPage):
         modify_button = modify_buttons[0]  # 수정 버튼들 중 첫번째 요소를 선택
         modify_button.click()
 
+        time.sleep(2)
+
         # 장바구니 수정 Modal이 열렸는지 확인
         title = self.driver.find_element(By.XPATH, self.TITLE_H4_XPATH)
 
         assert title.text == "장바구니 수정"
 
-    # 모달 닫힘
+    # 모달 닫기 (X버튼)
     def close_by_x(self):
         close_button = self.driver.find_element(By.XPATH, self.CLOSE_A_XPATH)
         close_button.click()
@@ -94,9 +104,13 @@ class CartModal(CartPage):
             select_box = self.driver.find_element(By.XPATH, self.SELECT_XPATH)
             select_box.click()
 
+            time.sleep(2)
+
             options = select_box.find_elements(By.TAG_NAME, self.OPTION_TAG_NAME)
             first_option = options[1]  # 옵션 1번은 선택하세요
             first_option.click()
+
+            time.sleep(2)
 
         except NoSuchElementException:
             print("옵션이 없습니다.")
@@ -106,6 +120,8 @@ class CartModal(CartPage):
     def confirm(self):
         confirm_button = self.driver.find_element(By.XPATH, self.CONFIRM_BUTTON_XPATH)
         confirm_button.click()
+
+        time.sleep(2)
 
         # 옵션을 설정하지 않고 확인을 누르면 alert 출력
         # -> alert 출력시 에러 발생
@@ -119,7 +135,7 @@ class CartModal(CartPage):
             # self.select_option()
             # self.confirm()
 
-    # 창닫기
+    # 모달 닫기 (창닫기 버튼)
     def close_by_button(self):
         close_button = self.driver.find_element(By.XPATH, self.CLOSE_BUTTON_XPATH)
         close_button.click()
