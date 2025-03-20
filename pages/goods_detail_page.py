@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -130,6 +131,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"프로세스 실행 중 오류 발생 : {e}")
 
-finally:
-    # 브라우저 종료
-    driver.quit()
+    finally:
+        # 브라우저 종료
+        driver.quit()
