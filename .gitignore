@@ -9,3 +9,5 @@ login_info.py
 
 venv/
 .venv/
+
+.ignore
