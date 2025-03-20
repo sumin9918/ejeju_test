@@ -2,8 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.keys import Keys
 
 # 우선 Goods Detail 확인을 위해 아래의 Url 체크 
 class GoodsDetail:
@@ -15,13 +13,13 @@ class GoodsDetail:
     # 메인 페이지 열기
     def open_page(self):
         self.driver.get(self.Url)
-
-    time.sleep(5)
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        )
 
     # 상품 클릭 (첫번째 아이템)
     def click_on_first_product(self):
-        try:
-            # 배너를 선택하고 클릭
+        try: # 배너를 선택하고 클릭
             first_product = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div[3]/div[2]/div[1]/section[1]/ul/li[1]/a[2]"))
             )
@@ -40,7 +38,7 @@ class GoodsDetail:
                 EC.url_to_be(expected_url)
             )
             current_url = self.driver.current_url
-            assert current_url == expected_url, f"Expected {expected_url}, but got {current_url}"
+            assert current_url == expected_url, f"Expected {expected_url}, but got {self.driver.current_url}"
             print("상세 페이지 진입 성공!")
         except Exception as e: 
             print(f"상세 페이지 진입 시도 중 오류가 발생했습니다!: {e}")
@@ -66,12 +64,7 @@ class GoodsDetail:
     
     #찜하기 팝업 종료하기
     def close_favorite_popup(self):
-        try:
-            #팝업이 나타날 때까지 기다리기
-            popup_element = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="pop_favorite_add_info"]'))
-            )
-            # 팝업 종료 버튼 클릭
+        try: # 팝업 종료 버튼 클릭
             close_button = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, '//*[@id="pop_favorite_add_info"]/div/div/div[2]/a[2]'))
             )
@@ -93,13 +86,13 @@ class GoodsDetail:
 
 ################ 옵션 변경이 있는 상품을 찾아야 함 ################
 
-    # 갯수 조절
+    # 수량 조절
     def increase_ea(self, times):
         try:
             increase_button = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[3]/div/div[1]/form[2]/div[3]/div[2]/div[4]/div[1]/div[2]/span/span/button[2]'))
             )
-            for 4 in range(times):
+            for _ in range(times):
                 increase_button.click()
                 print("수량 증가 버튼을 클릭했습니다!")
         except Exception as e:
@@ -107,25 +100,35 @@ class GoodsDetail:
             raise
 
 
-    # # 장바구니 담기
-    # def add_to_cart(self):
-    #     add_to_cart_button = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "add-to-cart-button")))
-    #     add_to_cart_button.click()
+    # 장바구니 담기
+    def add_to_cart(self):
+        try:
+            add_to_cart_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[3]/div/div[1]/form[2]/div[3]/div[2]/div[5]/div[1]/button[2]'))
+                )
+            add_to_cart_button.click()
+            print("장바구니에 상품을 성공적으로 담았습니다!")
+        except Exception as e:
+            print(f"장바구니에 상품 담기 중 오류 발생: {e}")
+            raise
 
 
 if __name__ == "__main__":
-   # Chrome 브라우저 초기화
-    driver = Webdriver.Chrome()
-    
     try:
-    # GoodsDetail 클래스 초기화
+        driver = webdriver.Chrome()    
         goods_detail = GoodsDetail(driver)
-        # 메인 페이지 열기
+
+        # 메인 페이지 열기 및 전체 프로세스 실행
         goods_detail.open_page()
-        #상품 클릭 (CSS Selector 사용)
-        goods_detail.click_on_product()
-        # 상세 페이지 이동 확인
-        # goods_detail.verify_goods_detail_page("https://mall.ejeju.net/goods/detail.do?gno=10492&cate=31040")
+        goods_detail.click_on_first_product()
+        goods_detail.verify_goods_detail_page("https://mall.ejeju.net/goods/detail.do?gno=10492&cate=31040")
+        goods_detail.add_to_wish()
+        goods_detail.close_favorite_popup()
+        goods_detail.increase_ea(4)
+        goods_detail.add_to_cart()
+
+    except Exception as e:
+        print(f"프로세스 실행 중 오류 발생 : {e}")
 
 finally:
     # 브라우저 종료
