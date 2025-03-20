@@ -184,7 +184,7 @@ class TestCart:
             driver.save_screenshot("error_at_tc2.png")
             assert False
 
-    # 3. 상품 옵션 수정 테스트
+    # 상품 옵션 수정 테스트
     def test_modify_option(self, driver: WebDriver):
         try:
             # 로그인
@@ -222,8 +222,38 @@ class TestCart:
             driver.save_screenshot("error_at_tc1.png")
             assert False
 
-    # 4. 삭제
-    # - 로그인
-    # - 장바구니 페이지 이동
-    # - 삭제 클릭
-    # - 상품 확인
+    # 4. 상품 삭제 테스트
+    def test_delete_goods(self, driver: WebDriver):
+        try:
+            # 로그인
+            login(driver)
+
+            # 장바구니 페이지 이동
+            cart_page = CartPage(driver)
+            cart_page.open()
+
+            ws(driver, 10).until(
+                EC.url_contains("https://mall.ejeju.net/order/cart.do")
+            )
+
+            time.sleep(2)
+
+            # 삭제 클릭
+            cart_page.click()
+
+            time.sleep(2)
+
+            # 상품 이름 확인
+            goods_names = [
+                goods_name.get_attribute("textContent").strip()
+                for goods_name in driver.find_elements(
+                    By.XPATH, self.GOODS_NAMES_STRONG_XPATH
+                )
+            ]
+
+            # 장바구니에 있는 상품들 중 TEST_GOODS_NAME과 같은 이름이 없는지 확인
+            assert self.TEST_GOODS_NAME not in goods_names
+
+        except NoSuchElementException as e:
+            driver.save_screenshot("error_at_tc1.png")
+            assert False
