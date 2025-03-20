@@ -1,24 +1,53 @@
-# - 검색 테스트 시 검색 결과 확인하는 함수
-
+import time
 from selenium.webdriver.common.by import By
-from pages.main_page import MainPage
+from selenium.webdriver.chrome.webdriver import WebDriver
 
-class SearchResultPage(MainPage):
-    PRODUCT_NAME = (By.CLASS_NAME, "pro-name")  # 상품명
-    PRODUCT_PRICE = (By.CLASS_NAME, "price")  # 가격
 
+class SearchResultPage:
+    def __init__(self, driver: WebDriver):
+        self.driver = driver
+
+    # 검색 결과에서 상품 정보 가져오기
     def get_search_results(self):
-        # 검색된 상품 정보를 리스트로 반환 (개별 컨테이너 없이 인덱스로 매칭)
-        names = self.find_elements(*self.PRODUCT_NAMES)  # 모든 상품명 요소 찾기
-        prices = self.find_elements(*self.PRODUCT_PRICES)  # 모든 가격 요소 찾기
+        time.sleep(2)
 
+        products = self.driver.find_elements(By.CSS_SELECTOR, ".goods_list ul li")
         results = []
-        num_products = min(len(names), len(prices))  # 가장 적은 요소 수 기준으로 조정
 
-        for i in range(num_products):
-            results.append({
-                "name": names[i].text.strip(),
-                "price": prices[i].text.strip()
-            })
+        for product in products:
+            try:
+                name = product.find_element(By.CSS_SELECTOR, ".name").text
+                price = product.find_element(By.CSS_SELECTOR, ".price").text
+                results.append({
+                    "name": name,
+                    "price": price
+                })
+            except:
+                continue  # 일부 요소가 없을 경우 무시
 
         return results
+
+    # 로그인 상태에서 검색 결과 가져오기
+    def get_logged_in_results(self, main_page):
+        main_page.my_page_login()
+        time.sleep(2)
+
+        main_page.search_products()
+        return self.get_search_results()
+
+    # 로그아웃 상태에서 검색 결과 가져오기
+    def get_logged_out_results(self, main_page):
+        main_page.my_page_logout()
+        time.sleep(2)
+
+        main_page.search_products()
+        return self.get_search_results()
+
+    # 로그인/비로그인 상태의 검색 결과 비교
+    def compare_results(self, logged_in_results, logged_out_results):
+        if logged_in_results == logged_out_results:
+            print("로그인 상태와 비로그인 상태에서 검색 결과가 동일.")
+        else:
+            print("로그인 상태와 비로그인 상태에서 검색 결과가 다름")
+            print("로그인 상태 결과:", logged_in_results)
+            print("비로그인 상태 결과:", logged_out_results)
