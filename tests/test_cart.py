@@ -10,6 +10,7 @@ from selenium.common.exceptions import NoSuchElementException
 from pages.login_page import LoginPage
 from pages.cart_page import CartPage
 from pages.cart_page import CartModal
+from login_info import LOGIN_INFO
 
 """ 
 실행방법
@@ -27,8 +28,8 @@ from pages.cart_page import CartModal
 1. 장바구니 상품 확인 테스트
     - 장바구니에서 상품 확인
     - 장바구니에 상품을 추가하는 함수가 만들어지면 후에 장바구니에 상품을 추가하는 로직 추가
-2. 상품 최대, 최소 수량 확인 테스트
-    - 상품의 수량을 최대, 최소로 수량으로 변경했을 때 경고 문구 확인
+2. 상품 수량 테스트
+    - 상품의 수량이 추가, 감소되는지 확인
 3. 상품 옵션 수정 테스트
     - 상품 옵션을 모달을 통해 수정한 뒤 변경되었는지 확인
 4. 상품 삭제 테스트
@@ -36,7 +37,7 @@ from pages.cart_page import CartModal
 
 """
 
-# @pytest.mark.skip(reason="아직 테스트 케이스 발동 안함")
+# @pytest.mark.skip(reason="에러 발생")
 
 
 # 임시 로그인 함수
@@ -47,12 +48,16 @@ def login(driver: WebDriver):
     login_page.login_open()
 
     ws(driver, 10).until(EC.url_contains("login"))
+    ws(driver, 10).until(EC.element_to_be_clickable((By.NAME, "id")))
 
     # 로그인
-    check_is_login_text = login_page.login_process()
+    id_input = driver.find_element(By.NAME, "id")
+    password_input = driver.find_element(By.NAME, "pw")
+    login_btn = driver.find_element(By.XPATH, "//input[@value='로그인']")
 
-    # check_is_login_text가 로그아웃이면 로그인 된 것
-    assert check_is_login_text == "로그아웃"
+    id_input.send_keys(LOGIN_INFO["id"])
+    password_input.send_keys(LOGIN_INFO["password"])
+    login_btn.click()
 
     print("✅ 로그인 완료")
 
@@ -72,9 +77,11 @@ class TestCart:
 
     # constants
     GOODS_NAMES_STRONG_XPATH = "//p[@class='txt']/a/strong"
+    QUANTITY_INPUT_XPATH = "//input[@title='수량']"
 
-    # 장바구니 추가 테스트
-    def test_open_main_page(self, driver: WebDriver):
+    # 장바구니 상품 확인 테스트
+    @pytest.mark.skip(reason="아직 테스트 케이스 발동 안함")
+    def test_confirm_cart_goods(self, driver: WebDriver):
         try:
             # 로그인
             login(driver)
@@ -83,15 +90,16 @@ class TestCart:
             cart_page = CartPage(driver)
             cart_page.open()
 
-            ws(driver, 10).until(EC.url_contains("cart"))
-            assert "cart" in driver.current_url
+            ws(driver, 10).until(
+                EC.url_contains("https://mall.ejeju.net/order/cart.do")
+            )
 
             time.sleep(2)
 
             # 상품 이름 확인
             goods_names = [
-                goods_name.text
-                for goods_name in self.driver.find_elements(
+                goods_name.get_attribute("textContent").strip()
+                for goods_name in driver.find_elements(
                     By.XPATH, self.GOODS_NAMES_STRONG_XPATH
                 )
             ]
@@ -100,15 +108,80 @@ class TestCart:
             assert self.TEST_GOODS_NAME in goods_names
 
         except NoSuchElementException as e:
+            driver.save_screenshot("error_at_tc1.png")
             assert False
 
-    # 2. 갯수 변경 테스트
-    # - 로그인
-    # - 장바구니 페이지 이동
-    # - 갯수 증가 (최대치)
-    # - 경고 문구 확인
-    # - 갯수 감소 (최소치)
-    # - 경고 문구 확인
+    # 상품 수량 테스트
+    def test_change_quantity(self, driver: WebDriver):
+        try:
+            # 로그인
+            login(driver)
+
+            # 장바구니 페이지 이동
+            cart_page = CartPage(driver)
+            cart_page.open()
+
+            ws(driver, 10).until(
+                EC.url_contains("https://mall.ejeju.net/order/cart.do")
+            )
+
+            time.sleep(2)
+
+            # 상품 수량 증가 테스트
+            quantity = driver.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH)
+            before_increase_quantity = int(quantity.get_attribute("value"))
+
+            print(f"수량 증가 전: {before_increase_quantity}")
+
+            cart_page.increase_quantity()  # 1 증가
+
+            # 증가 반영될 때까지 기다리기 (바로 새로고침 X)
+            ws(driver, 10).until(
+                lambda d: int(
+                    d.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH).get_attribute(
+                        "value"
+                    )
+                )
+                == before_increase_quantity + 1
+            )
+
+            quantity = driver.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH)
+            after_increase_quantity = int(quantity.get_attribute("value"))
+
+            print(f"수량 증가 후: {after_increase_quantity}")
+
+            assert before_increase_quantity + 1 == after_increase_quantity
+
+            time.sleep(2)
+
+            # 상품 수량 감소 테스트
+            quantity = driver.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH)
+            before_decrease_quantity = int(quantity.get_attribute("value"))
+
+            print(f"수량 감소 전: {before_decrease_quantity}")
+
+            cart_page.decrease_quantity()  # 1 감소
+
+            # 감소 반영될 때까지 기다리기
+            ws(driver, 10).until(
+                lambda d: int(
+                    d.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH).get_attribute(
+                        "value"
+                    )
+                )
+                == before_decrease_quantity - 1
+            )
+
+            quantity = driver.find_element(By.XPATH, self.QUANTITY_INPUT_XPATH)
+            after_decrease_quantity = int(quantity.get_attribute("value"))
+
+            print(f"수량 감소 후: {after_decrease_quantity}")
+
+            assert before_decrease_quantity - 1 == after_decrease_quantity
+
+        except NoSuchElementException as e:
+            driver.save_screenshot("error_at_tc2.png")
+            assert False
 
     # 3. 모달 테스트
     # - 로그인
