@@ -31,6 +31,14 @@
 ## 📅 진행기간
 - 2025.03.17 - 2025.03.18
 
+## 👨‍💻 참여 인원
+
+|                                    김동연                                    |                                    최효원                                     |                                    박재윤                                    |                                    최수민                                     |
+| :--------------------------------------------------------------------------: | :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+|                                  Software QA                                  |                                  Software QA                                   |                                  Software QA                                  |                                  Software QA                                   |
+|               [@simple9518](https://github.com/simple9518)               |                  [@Ellandora](https://github.com/Ellandora)                   |               [@Jaypark711](https://github.com/Jaypark711)               |                  [@sumin9918](https://github.com/sumin9918)                   |
+| <img src="https://avatars.githubusercontent.com/u/33806399?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/196183770?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/84322359?v=4" width="100"> | <img src="https://avatars.githubusercontent.com/u/104312167?v=4" width="100"> |
+
 ## 📋 환경정보
 <img src="https://img.shields.io/badge/Google%20Chrome%20134ver-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white">
 <img src="https://img.shields.io/badge/Windows%2010-0078D6?style=for-the-badge&logo=windows&logoColor=white">
