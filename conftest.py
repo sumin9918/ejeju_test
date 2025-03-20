@@ -41,7 +41,7 @@ def driver():
     """6) Sandbox나 DevShm 사이즈 문제 우회 (리눅스 환경에서 발생 가능)"""
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
     # 드라이버 객체 생성
     driver = webdriver.Chrome(service=Service(), options=chrome_options)
     driver.execute_cdp_cmd(
