@@ -83,6 +83,8 @@ class CartModal(CartPage):
         modify_button = modify_buttons[0]  # 수정 버튼들 중 첫번째 요소를 선택
         modify_button.click()
 
+        time.sleep(2)
+
         # 장바구니 수정 Modal이 열렸는지 확인
         title = self.driver.find_element(By.XPATH, self.TITLE_H4_XPATH)
 
@@ -102,9 +104,13 @@ class CartModal(CartPage):
             select_box = self.driver.find_element(By.XPATH, self.SELECT_XPATH)
             select_box.click()
 
+            time.sleep(2)
+
             options = select_box.find_elements(By.TAG_NAME, self.OPTION_TAG_NAME)
             first_option = options[1]  # 옵션 1번은 선택하세요
             first_option.click()
+
+            time.sleep(2)
 
         except NoSuchElementException:
             print("옵션이 없습니다.")
@@ -114,6 +120,8 @@ class CartModal(CartPage):
     def confirm(self):
         confirm_button = self.driver.find_element(By.XPATH, self.CONFIRM_BUTTON_XPATH)
         confirm_button.click()
+
+        time.sleep(2)
 
         # 옵션을 설정하지 않고 확인을 누르면 alert 출력
         # -> alert 출력시 에러 발생
