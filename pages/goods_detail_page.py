@@ -1,3 +1,4 @@
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -115,7 +116,7 @@ class GoodsDetail:
 
 if __name__ == "__main__":
    # Chrome 브라우저 초기화
-    driver = Webdriver.Chrome()
+    driver = webdriver.Chrome()
     
     try:
     # GoodsDetail 클래스 초기화
@@ -127,6 +128,6 @@ if __name__ == "__main__":
         # 상세 페이지 이동 확인
         # goods_detail.verify_goods_detail_page("https://mall.ejeju.net/goods/detail.do?gno=10492&cate=31040")
 
-finally:
-    # 브라우저 종료
-    driver.quit()
+    finally:
+        # 브라우저 종료
+        driver.quit()
